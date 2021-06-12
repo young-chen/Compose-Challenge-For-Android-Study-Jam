@@ -1,12 +1,18 @@
 package net.chenyoung.example.composechallengeforandroidstudyjam
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import retrofit2.Call
 import retrofit2.Callback
 
-class MainViewModel : ViewModel(){
-    val appService = ServiceCreator.create<AppService>()
+class MainViewModel : ViewModel() {
+    private val appService = ServiceCreator.create<AppService>()
+
+    val query = mutableStateOf("")
+
+    val cocktails: MutableState<List<Cocktail>?> = mutableStateOf(null)
 
     fun searchByName(name: String = "margarita") {
         appService.searchByName(name).enqueue(object :
@@ -17,7 +23,8 @@ class MainViewModel : ViewModel(){
             ) {
                 val response = response.body()
                 if (response != null) {
-                    for (cocktail in response.cocktails) {
+                    cocktails.value = response.cocktails
+                    for (cocktail in cocktails.value as List<Cocktail>) {
                         Log.d("MainActivity", "id is ${cocktail.id}")
                         Log.d("MainActivity", "name is ${cocktail.name}")
                         Log.d("MainActivity", "category is ${cocktail.category}")
