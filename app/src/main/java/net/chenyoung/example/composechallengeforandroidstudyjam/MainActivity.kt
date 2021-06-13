@@ -5,37 +5,41 @@ import androidx.compose.foundation.Image
 import com.google.accompanist.coil.rememberCoilPainter
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.ExperimentalUnitApi
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import net.chenyoung.example.composechallengeforandroidstudyjam.ui.theme.ComposeChallengeForAndroidStudyJamTheme
 
+@ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
 
     private val viewModel by lazy {
         ViewModelProvider(this, MainViewModelFactory()).get(MainViewModel::class.java)
     }
 
+    @ExperimentalUnitApi
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +51,15 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.searchByName()
+    }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalUnitApi
 @ExperimentalComposeUiApi
 @Composable
 fun AppContent(viewModel: MainViewModel) {
@@ -79,7 +90,7 @@ fun SearchAppBar(
         Row {
             TextField(
                 modifier = Modifier
-                    .fillMaxWidth(.9f)
+                    .fillMaxWidth()
                     .padding(8.dp),
                 value = query,
                 onValueChange = { onQueryChanged(it) },
@@ -101,60 +112,101 @@ fun SearchAppBar(
     }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalUnitApi
 @Composable
 fun SearchResultContent(
     items: List<Cocktail>?
 ) {
     if (items != null) {
-        LazyColumn {
-            itemsIndexed(
-                items = items
-            ) { index, item ->
-                ItemCard(cocktail = item)
+        LazyVerticalGrid(
+            cells = GridCells.Fixed(4),
+        ) {
+            items(items.size) {
+                ItemCard(cocktail = items[it])
             }
+        }
+    } else {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LinearProgressIndicator()
         }
     }
 }
 
+@ExperimentalUnitApi
 @Composable
 fun ItemCard(cocktail: Cocktail) {
     Card(
         shape = MaterialTheme.shapes.small,
         modifier = Modifier
-            .padding(top = 1.dp, bottom = 1.dp)
-            .fillMaxWidth(),
+            .padding(top = 6.dp, bottom = 6.dp, start = 3.dp, end = 3.dp)
+            .wrapContentWidth(),
         elevation = 8.dp
     ) {
-        Image(
-            painter = rememberCoilPainter(cocktail.image),
-            contentDescription = cocktail.name,
-            modifier = Modifier.scale(1.0f, 1.0f)
-        )
-        Column {
-            Text(text = cocktail.name)
-            if (cocktail.category != null) {
-                Text(text = cocktail.category)
+        Column() {
+            Image(
+                painter = rememberCoilPainter(cocktail.image),
+                contentDescription = cocktail.name,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(100.dp),
+                contentScale = ContentScale.Crop,
+            )
+            Column(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(top = 12.dp, bottom = 12.dp, start = 8.dp, end = 8.dp)
+            ) {
+                Text(
+                    text = cocktail.name,
+                    fontSize = TextUnit(10f, TextUnitType.Sp)
+                )
+                if (cocktail.category != null) {
+                    Text(
+                        text = cocktail.category,
+                        fontSize = TextUnit(8f, TextUnitType.Sp)
+                    )
+                }
             }
         }
     }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalUnitApi
 @Preview
 @Composable
 fun SearchResultContentPreview() {
     SearchResultContent(
         listOf(
             Cocktail("12764", "Karsk", "drawable://" + R.drawable.cocktail_image, "Ordinary Drink"),
-            Cocktail("17835", "Abilene", "drawable://" + R.drawable.cocktail_image, "Ordinary Drink"),
+            Cocktail(
+                "17835",
+                "Abilene",
+                "drawable://" + R.drawable.cocktail_image,
+                "Ordinary Drink"
+            ),
             Cocktail("17833", "A. J.", "drawable://" + R.drawable.cocktail_image, "Ordinary Drink"),
         )
     )
 }
 
+@ExperimentalUnitApi
 @Preview
 @Composable
 fun ItemCardPreview() {
-    ItemCard(cocktail = Cocktail("12764", "Karsk", "drawable://" + R.drawable.cocktail_image, "Ordinary Drink"))
+    ItemCard(
+        cocktail = Cocktail(
+            "12764",
+            "Karsk",
+            "drawable://" + R.drawable.cocktail_image,
+            "Ordinary Drink"
+        )
+    )
 }
 
 @ExperimentalComposeUiApi

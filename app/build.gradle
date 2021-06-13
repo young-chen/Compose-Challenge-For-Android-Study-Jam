@@ -58,6 +58,7 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha06"
     implementation "com.google.accompanist:accompanist-coil:0.11.1"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha07"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
